@@ -14,11 +14,11 @@ public class SafeInt {
 	public int safeInt;
 	private int _safeInt{
 		get{
-			return _safeIntValue.sv^_key + 5;
+			return _safeIntValue.sv + 5;
 		}
 		set{
 			SafeValue sh = GetSafeValue ();
-			sh.sv = (value - 5)^_key;
+			sh.sv = value - 5;
 			if(_safeIntValue!=null)
 				safeValueStack.Push (_safeIntValue);
 			_safeIntValue = sh;
