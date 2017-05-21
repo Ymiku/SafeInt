@@ -1,30 +1,45 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 [System.Serializable]
 public class SafeInt {
+	[System.Serializable]
+	public class SafeHash
+	{
+		public int hash = 0;
+	}
 	[SerializeField,SafeField("CalculateHash")]
 	private int _safeInt;
 	[SerializeField]
-	private int _hash;
+	private SafeHash _hash;
 	[SerializeField]
 	private static int _key;
+	private static Stack<SafeHash> hashStack = new Stack<SafeHash>();
 	static SafeInt()
 	{
 		_key = Random.Range (1000000,8000000);
+		#if UNITY_EDITOR
+			_key = 0;
+		#endif
 	}
 	public static SafeInt zero()
 	{
 		return new SafeInt(0);
 	}
+	private static SafeHash GetHash()
+	{
+		if (hashStack.Count > 0)
+			return hashStack.Pop ();
+		return new SafeHash ();
+	}
 	public SafeInt(int i)
 	{
 		_safeInt = i;
-		_hash = 0;
 		CalculateHash ();
 	}
 	public bool IsCheat()
 	{
-		if (_hash == Noise(_safeInt))
+		if (_hash.hash == Noise(_safeInt))
 			return false;
 		Debug.Log ("cheat!You cant init safeInt value in the inspector,init this value in the \"Start\" func instead");
 		return true;
@@ -36,7 +51,11 @@ public class SafeInt {
 	}
 	public void CalculateHash()
 	{
-		_hash = Noise (_safeInt);
+		SafeHash sh = GetHash ();
+		sh.hash = Noise (_safeInt);
+		if(_hash !=null)
+		hashStack.Push (_hash);
+		_hash = sh;
 	}
 	public int Get()
 	{
