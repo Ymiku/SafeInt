@@ -14,17 +14,17 @@ public class SafeInt {
 	public int safeInt;
 	private int _safeInt{
 		get{
-			return _safeIntValue.sv + 5;
+			return (_safeIntValue.sv+5)^_key;
 		}
 		set{
 			SafeValue sh = GetSafeValue ();
-			sh.sv = value - 5;
+			sh.sv = (value^_key)-5;
 			if(_safeIntValue!=null)
 				safeValueStack.Push (_safeIntValue);
 			_safeIntValue = sh;
 		}
 	}
-	[SerializeField,HideInInspector]
+	[SerializeField]
 	private int _hash;
 	private static int _key;
 	private static Stack<SafeValue> safeValueStack = new Stack<SafeValue>();
@@ -94,7 +94,10 @@ public class SafeInt {
 	{
 		if (IsCheat ())
 			Application.Quit ();
+		Debug.Log (i);
+		Debug.Log (_safeInt);
 		_safeInt -= i;
+		Debug.Log (_safeInt);
 		Encrypt ();
 	}
 	public void Multiply(int i)
