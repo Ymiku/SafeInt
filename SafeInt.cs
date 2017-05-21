@@ -94,10 +94,7 @@ public class SafeInt {
 	{
 		if (IsCheat ())
 			Application.Quit ();
-		Debug.Log (i);
-		Debug.Log (_safeInt);
 		_safeInt -= i;
-		Debug.Log (_safeInt);
 		Encrypt ();
 	}
 	public void Multiply(int i)
