@@ -1,45 +1,59 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 [System.Serializable]
 public class SafeInt {
 	[System.Serializable]
-	public class SafeHash
+	public class SafeValue
 	{
-		public int hash = 0;
+		public int sv = 0;
 	}
-	[SerializeField,SafeField("CalculateHash")]
-	private int _safeInt;
-	[SerializeField]
-	private SafeHash _hash;
-	[SerializeField]
+	[SerializeField,HideInInspector]
+	private SafeValue _safeIntValue;
+	[SafeField("EncryptInEditor")]
+	public int safeInt;
+	private int _safeInt{
+		get{
+			return _safeIntValue.sv^_key + 5;
+		}
+		set{
+			SafeValue sh = GetSafeValue ();
+			sh.sv = (value - 5)^_key;
+			if(_safeIntValue!=null)
+				safeValueStack.Push (_safeIntValue);
+			_safeIntValue = sh;
+		}
+	}
+	[SerializeField,HideInInspector]
+	private int _hash;
 	private static int _key;
-	private static Stack<SafeHash> hashStack = new Stack<SafeHash>();
+	private static Stack<SafeValue> safeValueStack = new Stack<SafeValue>();
 	static SafeInt()
 	{
-		_key = Random.Range (1000000,8000000);
+		_key = Random.Range (76005,5313000);
 		#if UNITY_EDITOR
-			_key = 0;
+			_key = 15731;
 		#endif
 	}
 	public static SafeInt zero()
 	{
 		return new SafeInt(0);
 	}
-	private static SafeHash GetHash()
+	private static SafeValue GetSafeValue()
 	{
-		if (hashStack.Count > 0)
-			return hashStack.Pop ();
-		return new SafeHash ();
+		if (safeValueStack.Count > 0)
+			return safeValueStack.Pop ();
+		return new SafeValue ();
 	}
 	public SafeInt(int i)
 	{
+		safeInt = Random.Range (76005,5313000);
 		_safeInt = i;
-		CalculateHash ();
+		Encrypt ();
 	}
 	public bool IsCheat()
 	{
-		if (_hash.hash == Noise(_safeInt))
+		if (_hash == Noise(_safeInt))
 			return false;
 		Debug.Log ("cheat!You cant init safeInt value in the inspector,init this value in the \"Start\" func instead");
 		return true;
@@ -49,13 +63,19 @@ public class SafeInt {
 		x = (x << 13) ^ x;
 		return (int)((1f - ((x * (x * x * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824f)*10000000f)^_key;
 	}
-	public void CalculateHash()
+	public void Encrypt()
 	{
-		SafeHash sh = GetHash ();
-		sh.hash = Noise (_safeInt);
-		if(_hash !=null)
-		hashStack.Push (_hash);
-		_hash = sh;
+		#if UNITY_EDITOR 
+		 safeInt = _safeInt;
+		#endif
+		_hash = Noise (_safeInt);
+	}
+	public void EncryptInEditor()
+	{
+		#if UNITY_EDITOR 
+			_safeInt = safeInt;
+		#endif
+		_hash = Noise (_safeInt);
 	}
 	public int Get()
 	{
@@ -68,28 +88,28 @@ public class SafeInt {
 		if (IsCheat ())
 			Application.Quit ();
 		_safeInt += i;
-		CalculateHash ();
+		Encrypt ();
 	}
 	public void Decrease(int i)
 	{
 		if (IsCheat ())
 			Application.Quit ();
 		_safeInt -= i;
-		CalculateHash ();
+		Encrypt ();
 	}
 	public void Multiply(int i)
 	{
 		if (IsCheat ())
 			Application.Quit ();
 		_safeInt *= i;
-		CalculateHash ();
+		Encrypt ();
 	}
 	public void Divided(int i)
 	{
 		if (IsCheat ())
 			Application.Quit ();
 		_safeInt /= i;
-		CalculateHash ();
+		Encrypt ();
 	}
 	public static SafeInt operator +(SafeInt lhs,int rhs)
 	{
