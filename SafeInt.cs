@@ -12,6 +12,8 @@ public class SafeInt {
 	private SafeValue _safeIntValue;
 	[SafeField("EncryptInEditor")]
 	public int safeInt;
+	//在editor里测试时更改safeInt的值即可，不要更改_safeIntValue和 _hash，真机运行时一定要在使用前重新生成实例，不能直接使用editor里的设置
+	//例如，在editor里设置了safeInt为10，真机时，一定要在start或awake中重新赋值，safeInt=10，否则会闪退
 	private int _safeInt{
 		get{
 			return (_safeIntValue.sv+5)^_key;
@@ -59,6 +61,9 @@ public class SafeInt {
 		_safeInt = i;
 		Encrypt ();
 	}
+	/// <summary>
+	/// Check if the int is zero.
+	/// </summary>
 	public bool IsZero()
 	{
 		if (_safeIntValue.sv == zeroCipher && _hash == zeroHash)
