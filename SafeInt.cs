@@ -8,7 +8,7 @@ public class SafeInt {
 	{
 		public int sv = 0;
 	}
-	[SerializeField,HideInInspector]
+	[SerializeField]
 	private SafeValue _safeIntValue;
 	[SafeField("EncryptInEditor")]
 	public int safeInt;
@@ -28,12 +28,20 @@ public class SafeInt {
 	private int _hash;
 	private static int _key;
 	private static Stack<SafeValue> safeValueStack = new Stack<SafeValue>();
+
+	private static int zeroCipher;
+	private static int zeroHash;
+
 	static SafeInt()
 	{
 		_key = Random.Range (76005,5313000);
 		#if UNITY_EDITOR
 			_key = 15731;
 		#endif
+		zeroCipher = (0^_key)-5;
+		int x = 0;
+		x = (x << 13) ^ x;
+		zeroHash = (int)((1f - ((x * (x * x * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824f)*10000000f)^_key; 
 	}
 	public static SafeInt zero()
 	{
@@ -50,6 +58,12 @@ public class SafeInt {
 		safeInt = Random.Range (76005,5313000);
 		_safeInt = i;
 		Encrypt ();
+	}
+	public bool IsZero()
+	{
+		if (_safeIntValue.sv == zeroCipher && _hash == zeroHash)
+			return true;
+		return false;
 	}
 	public bool IsCheat()
 	{
