@@ -38,7 +38,7 @@ public class SafeInt {
 	{
 		_key = Random.Range (76005,5313000);
 		#if UNITY_EDITOR
-			_key = 15731;
+		_key = 15731;
 		#endif
 		zeroCipher = (0^_key)-5;
 		int x = 0;
@@ -85,14 +85,14 @@ public class SafeInt {
 	public void Encrypt()
 	{
 		#if UNITY_EDITOR 
-		 safeInt = _safeInt;
+		safeInt = _safeInt;
 		#endif
 		_hash = Noise (_safeInt);
 	}
 	public void EncryptInEditor()
 	{
 		#if UNITY_EDITOR 
-			_safeInt = safeInt;
+		_safeInt = safeInt;
 		#endif
 		_hash = Noise (_safeInt);
 	}
@@ -130,26 +130,24 @@ public class SafeInt {
 		_safeInt /= i;
 		Encrypt ();
 	}
-	public static SafeInt operator +(SafeInt lhs,int rhs)
+
+	public static int operator +(SafeInt lhs,int rhs)
 	{
-		lhs.Add (rhs);
-		return lhs;
+		return lhs.Get()+rhs;
 	}
-	public static SafeInt operator -(SafeInt lhs,int rhs)
+	public static int operator -(SafeInt lhs,int rhs)
 	{
-		lhs.Decrease (rhs);
-		return lhs;
+		return lhs.Get()-rhs;
 	}
-	public static SafeInt operator *(SafeInt lhs,int rhs)
+	public static int operator *(SafeInt lhs,int rhs)
 	{
-		lhs.Multiply (rhs);
-		return lhs;
+		return lhs.Get()*rhs;
 	}
-	public static SafeInt operator /(SafeInt lhs,int rhs)
+	public static int operator /(SafeInt lhs,int rhs)
 	{
-		lhs.Divided (rhs);
-		return lhs;
+		return lhs.Get()/rhs;
 	}
+
 	public static SafeInt operator ++(SafeInt i)
 	{
 		i.Add (1);
@@ -168,4 +166,5 @@ public class SafeInt {
 	{
 		return new SafeInt (i);
 	}
+		
 }
